@@ -13,34 +13,9 @@
  -/:             :/-  -/:             :/.     ://:         `/////////////-
 ```
 
-# Aave Protocol v2
+# Aave Protocol v2 on NEON
 
-This repository contains the smart contracts source code and markets configuration for Aave Protocol V2. The repository uses Docker Compose and Hardhat as development enviroment for compilation, testing and deployment tasks.
-
-## What is Aave?
-
-Aave is a decentralized non-custodial liquidity markets protocol where users can participate as depositors or borrowers. Depositors provide liquidity to the market to earn a passive income, while borrowers are able to borrow in an overcollateralized (perpetually) or undercollateralized (one-block liquidity) fashion.
-
-## Documentation
-
-The documentation of Aave V2 is in the following [Aave V2 documentation](https://docs.aave.com/developers/v/2.0/) link. At the documentation you can learn more about the protocol, see the contract interfaces, integration guides and audits.
-
-For getting the latest contracts addresses, please check the [Deployed contracts](https://docs.aave.com/developers/v/2.0/deployed-contracts/deployed-contracts) page at the documentation to stay up to date.
-
-A more detailed and technical description of the protocol can be found in this repository, [here](./aave-v2-whitepaper.pdf)
-
-## Audits
-
-- MixBytes (16/09/2020 - 03/12/2020): [report](./audits/Mixbytes-aave-v2-03-12-2020.pdf)
-- PeckShield (29/09/2020 - 03/12/2020) : [report](./audits/Peckshield-aave-v2-03-12-2020-EN.pdf) (Also available in Chinese in the same folder)
-- CertiK (28/09/2020 - 02/12/2020): [report](./audits/Certik-aave-v2-03-12-2020.pdf)
-- Consensys Diligence (09/09/2020 - 09/10/2020): [report](https://consensys.net/diligence/audits/2020/09/aave-protocol-v2/)
-- Certora, formal verification (02/08/2020 - 29/10/2020): [report](./audits/Certora-FV-aave-v2-03-12-2020.pdf)
-- SigmaPrime (January 2021): [report](./audits/SigmaPrime-aave-v2-01-2021.pdf)
-
-## Connect with the community
-
-You can join at the [Discord](http://aave.com/discord) channel or at the [Governance Forum](https://governance.aave.com/) for asking questions about the protocol or talk about Aave with other peers.
+This repository contains the smart contracts source code and markets configuration for Aave Protocol V2 for NEON platform. The repository uses Docker Compose and Hardhat as development enviroment for compilation, testing and deployment tasks.
 
 ## Getting Started
 
@@ -146,21 +121,27 @@ You can deploy Aave Protocol v2 in a forked Mainnet chain using Hardhat built-in
 docker-compose run contracts-env npm run aave:fork:main
 ```
 
-### Deploy Aave into a Mainnet Fork via console
+### Deploy Aave into a NEON via console
 
-You can deploy Aave into the Hardhat console in fork mode, to interact with the protocol inside the fork or for testing purposes.
+You can deploy Aave into the Hardhat console running through NEON, to interact with the protocol inside NEON or for testing purposes.
 
-Run the console in Mainnet fork mode:
+Run NEON:
 
 ```
-docker-compose run contracts-env npm run console:fork
+sudo NEON_EVM_COMMIT=v0.7.8 FAUCET_COMMIT=latest REVISION=v0.7.23 docker-compose -f docker-compose-test.yml up -d
+```
+
+Run the console in NEON:
+
+```
+docker-compose run contracts-env npm run aave:neonlabs:console
 ```
 
 At the Hardhat console, interact with the Aave protocol in Mainnet fork mode:
 
 ```
 // Deploy the Aave protocol in fork mode
-await run('aave:mainnet')
+await run('aave:dev')
 
 // Or your custom Hardhat task
 await run('your-custom-task');
@@ -170,9 +151,32 @@ run('set-DRE');
 
 // Import contract getters to retrieve an Ethers.js Contract instance
 const contractGetters = require('./helpers/contracts-getters'); // Import a TS/JS file
+const contractHelpers = require('./helpers/contracts-helpers'); 
+const configuration = require('./helpers/configuration'); 
 
 // Lending pool instance
-const lendingPool = await contractGetters.getLendingPool("LendingPool address from 'aave:mainnet' task");
+const lendingPool = await contractGetters.getLendingPool();
+var lendingPoolConfigurator = await contractGetters.getLendingPoolConfiguratorProxy();
+var priceOracle = await contractGetters.getPriceOracle();
+var aaveProtocolDataProvider = await contractGetters.getAaveProtocolDataProvider();
+
+// Unpause pool
+var poolAdmin = await lendingPoolAddressProvider.getEmergencyAdmin()
+var signer = await ethers.provider.getSigner(poolAdmin)
+await lendingPoolConfigurator.connect(signer).setPoolPause(0)
+await lendingPool.paused()
+
+// Mint some intial balance
+var reserves = await lendingPool.getReservesList()
+var USDC = await contractGetters.getMintableERC20(reserves[0])
+await USDC.mint(ethers.utils.parseEther('10'))
+var signer = await ethers.provider.getSigner()
+ethers.utils.formatEther(await USDC.balanceOf(await signer.getAddress()))
+
+// Deposit funds in the pool
+await USDC.connect(signer).approve(lendingPool.address, ethers.utils.parseUnits('10'));
+await lendingPool.connect(signer).deposit(USDC.address, ethers.utils.parseUnits('10'), await signer.getAddress(), '0');
+await lendingPool.connect(signer).withdraw(USDC.address, ethers.utils.parseUnits('10'), await signer.getAddress());
 
 // You can impersonate any Ethereum address
 await network.provider.request({ method: "hardhat_impersonateAccount",  params: ["0xb1adceddb2941033a090dd166a462fe1c2029484"]});

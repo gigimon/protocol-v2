@@ -6,7 +6,7 @@ import { printContracts } from '../../helpers/misc-utils';
 task('aave:dev', 'Deploy development enviroment')
   .addFlag('verify', 'Verify contracts at Etherscan')
   .setAction(async ({ verify }, localBRE) => {
-    const POOL_NAME = ConfigNames.Aave;
+    const POOL_NAME = ConfigNames.Neon;
 
     await localBRE.run('set-DRE');
 

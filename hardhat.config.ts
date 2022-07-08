@@ -9,6 +9,7 @@ import {
   eNetwork,
   ePolygonNetwork,
   eXDaiNetwork,
+  eNeonNetwork,
 } from './helpers/types';
 import { BUIDLEREVM_CHAINID, COVERAGE_CHAINID } from './helpers/buidler-constants';
 import {
@@ -142,6 +143,17 @@ const buidlerConfig: HardhatUserConfig = {
         count: 20,
       },
     },
+    neonlabs: {
+      url: 'http://172.19.0.6:9090/solana',
+      accounts: ['0xa84fd3e60c233f7c7c5fc59e3bb3b87dece3063a8bd407bb7b1f2c1d58feaea5'],
+      // @ts-ignore
+      network_id: 111,
+      chainId: 111,
+      allowUnlimitedContractSize: false,
+      timeout: 1000000,
+      // @ts-ignore
+      isFork: true
+    }
   },
 };
 

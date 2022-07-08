@@ -15,10 +15,12 @@ import {
   eXDaiNetwork,
   eNetwork,
   iEthereumParamsPerNetwork,
+  iNeonParamsPerNetwork,
   iPolygonParamsPerNetwork,
   iXDaiParamsPerNetwork,
   iAvalancheParamsPerNetwork,
   eAvalancheNetwork,
+  eNeonNetwork,
 } from './types';
 import { MintableERC20 } from '../types/MintableERC20';
 import { Artifact } from 'hardhat/types';
@@ -150,6 +152,7 @@ export const getParamPerNetwork = <T>(param: iParamsPerNetwork<T>, network: eNet
   const { matic, mumbai } = param as iPolygonParamsPerNetwork<T>;
   const { xdai } = param as iXDaiParamsPerNetwork<T>;
   const { avalanche, fuji } = param as iAvalancheParamsPerNetwork<T>;
+  const { neonlabs } = param as iNeonParamsPerNetwork<T>;
   if (process.env.FORK) {
     return param[process.env.FORK as eNetwork] as T;
   }
@@ -179,6 +182,8 @@ export const getParamPerNetwork = <T>(param: iParamsPerNetwork<T>, network: eNet
       return avalanche;
     case eAvalancheNetwork.fuji:
       return fuji;
+    case eNeonNetwork.neonlabs:
+      return neonlabs;
   }
 };
 
@@ -205,6 +210,8 @@ export const getParamPerPool = <T>(
       return matic;
     case AavePools.avalanche:
       return avalanche;
+    case AavePools.neon:
+      return neon;
     default:
       return proto;
   }
@@ -398,7 +405,7 @@ export const getContractAddressWithJsonFallback = async (
 
   const contractAtMarketConfig = getOptionalParamAddressPerNetwork(poolConfig[id], network);
   if (notFalsyOrZeroAddress(contractAtMarketConfig)) {
-    return contractAtMarketConfig;
+    return contractAtMarketConfig!;
   }
 
   const contractAtDb = await getDb().get(`${id}.${DRE.network.name}`).value();

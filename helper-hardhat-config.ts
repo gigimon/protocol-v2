@@ -5,6 +5,7 @@ import {
   eEthereumNetwork,
   ePolygonNetwork,
   eXDaiNetwork,
+  eNeonNetwork,
   iParamsPerNetwork,
 } from './helpers/types';
 
@@ -70,6 +71,7 @@ export const NETWORKS_DEFAULT_GAS: iParamsPerNetwork<number> = {
   [eXDaiNetwork.xdai]: 1 * GWEI,
   [eAvalancheNetwork.avalanche]: 225 * GWEI,
   [eAvalancheNetwork.fuji]: 85 * GWEI,
+  [eNeonNetwork.neonlabs]: 65 * GWEI,
 };
 
 export const BLOCK_TO_FORK: iParamsPerNetwork<number | undefined> = {
@@ -85,4 +87,5 @@ export const BLOCK_TO_FORK: iParamsPerNetwork<number | undefined> = {
   [eXDaiNetwork.xdai]: undefined,
   [eAvalancheNetwork.avalanche]: undefined,
   [eAvalancheNetwork.fuji]: undefined,
+  [eNeonNetwork.neonlabs]: undefined,
 };

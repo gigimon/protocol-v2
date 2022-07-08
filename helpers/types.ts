@@ -4,7 +4,12 @@ export interface SymbolMap<T> {
   [symbol: string]: T;
 }
 
-export type eNetwork = eEthereumNetwork | ePolygonNetwork | eXDaiNetwork | eAvalancheNetwork;
+export type eNetwork =
+  | eEthereumNetwork
+  | ePolygonNetwork
+  | eXDaiNetwork
+  | eAvalancheNetwork
+  | eNeonNetwork;
 
 export enum eEthereumNetwork {
   buidlerevm = 'buidlerevm',
@@ -41,10 +46,15 @@ export enum EthereumNetworkNames {
   fuji = 'fuji',
 }
 
+export enum eNeonNetwork {
+  neonlabs = 'neonlabs',
+}
+
 export enum AavePools {
   proto = 'proto',
   matic = 'matic',
   amm = 'amm',
+  neon = 'neon',
   avalanche = 'avalanche',
 }
 
@@ -326,7 +336,9 @@ export type iAvalanchePoolAssets<T> = Pick<
   'WETH' | 'DAI' | 'USDT' | 'AAVE' | 'WBTC' | 'WAVAX' | 'USDC'
 >;
 
-export type iMultiPoolsAssets<T> = iAssetCommon<T> | iAavePoolAssets<T>;
+export type iNeonPoolAssets<T> = Pick<iAssetsWithoutUSD<T>, 'USDC' | 'USDT'>;
+
+export type iMultiPoolsAssets<T> = iAssetCommon<T> | iAavePoolAssets<T> | iNeonPoolAssets<T>;
 
 export type iAavePoolTokens<T> = Omit<iAavePoolAssets<T>, 'ETH'>;
 
@@ -417,12 +429,18 @@ export type iParamsPerNetwork<T> =
   | iEthereumParamsPerNetwork<T>
   | iPolygonParamsPerNetwork<T>
   | iXDaiParamsPerNetwork<T>
-  | iAvalancheParamsPerNetwork<T>;
+  | iAvalancheParamsPerNetwork<T>
+  | iNeonParamsPerNetwork<T>;
 
 export interface iParamsPerNetworkAll<T>
   extends iEthereumParamsPerNetwork<T>,
     iPolygonParamsPerNetwork<T>,
+    iNeonParamsPerNetwork<T>,
     iXDaiParamsPerNetwork<T> {}
+
+export interface iNeonParamsPerNetwork<T> {
+  [eNeonNetwork.neonlabs]: T;
+}
 
 export interface iEthereumParamsPerNetwork<T> {
   [eEthereumNetwork.coverage]: T;
@@ -450,6 +468,7 @@ export interface iAvalancheParamsPerNetwork<T> {
 
 export interface iParamsPerPool<T> {
   [AavePools.proto]: T;
+  [AavePools.neon]: T;
   [AavePools.matic]: T;
   [AavePools.amm]: T;
   [AavePools.avalanche]: T;
@@ -552,8 +571,12 @@ export interface IAvalancheConfiguration extends ICommonConfiguration {
   ReservesConfig: iAvalanchePoolAssets<IReserveParams>;
 }
 
+export interface INeonConfiguration extends ICommonConfiguration {
+  ReservesConfig: iNeonPoolAssets<IReserveParams>;
+}
+
 export interface ITokenAddress {
   [token: string]: tEthereumAddress;
 }
 
-export type PoolConfiguration = ICommonConfiguration | IAaveConfiguration;
+export type PoolConfiguration = ICommonConfiguration | IAaveConfiguration | INeonConfiguration;
