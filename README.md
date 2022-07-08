@@ -128,13 +128,13 @@ You can deploy Aave into the Hardhat console running through NEON, to interact w
 Run NEON:
 
 ```
-sudo NEON_EVM_COMMIT=v0.7.8 FAUCET_COMMIT=latest REVISION=v0.7.23 docker-compose -f docker-compose-test.yml up -d
+sudo NEON_EVM_COMMIT=v0.7.8 FAUCET_COMMIT=latest REVISION=v0.7.23 docker-compose -f docker-compose.neon.yml up -d
 ```
 
 Run the console in NEON:
 
 ```
-docker-compose run contracts-env npm run aave:neonlabs:console
+docker-compose run contracts-env npm run neonlabs:console
 ```
 
 At the Hardhat console, interact with the Aave protocol in Mainnet fork mode:
