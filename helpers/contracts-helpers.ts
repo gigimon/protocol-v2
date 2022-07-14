@@ -198,7 +198,7 @@ export const getOptionalParamAddressPerNetwork = (
 };
 
 export const getParamPerPool = <T>(
-  { proto, amm, matic, avalanche }: iParamsPerPool<T>,
+  { proto, amm, matic, neon, avalanche }: iParamsPerPool<T>,
   pool: AavePools
 ) => {
   switch (pool) {

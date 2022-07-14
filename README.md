@@ -131,15 +131,22 @@ Run NEON:
 sudo NEON_EVM_COMMIT=v0.7.8 FAUCET_COMMIT=latest REVISION=v0.7.23 docker-compose -f docker-compose.neon.yml up -d
 ```
 
-Run the console in NEON:
+Run the deploy task in NEON:
+
+```
+docker-compose run contracts-env npm run neonlabs:deploy
+```
+
+For interactive deploy and test, start hardhat console:
 
 ```
 docker-compose run contracts-env npm run neonlabs:console
 ```
 
-At the Hardhat console, interact with the Aave protocol in Mainnet fork mode:
+At the Hardhat console, interact with the Aave protocol:
 
 ```
+
 // Deploy the Aave protocol in fork mode
 await run('aave:dev')
 
