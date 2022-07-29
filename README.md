@@ -128,10 +128,10 @@ You can deploy Aave into the Hardhat console running through NEON, to interact w
 Run NEON:
 
 ```
-sudo NEON_EVM_COMMIT=v0.7.8 FAUCET_COMMIT=latest REVISION=v0.7.23 docker-compose -f docker-compose.neon.yml up -d
+sudo NEON_EVM_COMMIT=v0.8.3 FAUCET_COMMIT=latest REVISION=v0.9.1 docker-compose -f docker-compose.neon.yml up -d
 ```
 
-Run the deploy task in NEON:
+Run the deploy and test task in NEON:
 
 ```
 docker-compose run contracts-env npm run neonlabs:deploy
@@ -154,18 +154,23 @@ await run('aave:dev')
 await run('your-custom-task');
 
 // After you initialize the HRE via 'set-DRE' task, you can import any TS/JS file
-run('set-DRE');
+await run('set-DRE');
 
 // Import contract getters to retrieve an Ethers.js Contract instance
+await run('set-DRE');
+var BigNumber = require('bignumber.js');
 const contractGetters = require('./helpers/contracts-getters'); // Import a TS/JS file
 const contractHelpers = require('./helpers/contracts-helpers'); 
 const configuration = require('./helpers/configuration'); 
+const deployments = require('./helpers/contracts-deployments'); 
 
 // Lending pool instance
 const lendingPool = await contractGetters.getLendingPool();
 var lendingPoolConfigurator = await contractGetters.getLendingPoolConfiguratorProxy();
+var lendingPoolAddressProvider = await contractGetters.getLendingPoolAddressesProvider();
 var priceOracle = await contractGetters.getPriceOracle();
 var aaveProtocolDataProvider = await contractGetters.getAaveProtocolDataProvider();
+var mockFlashLoanReceiver = await contractGetters.getMockFlashLoanReceiver();
 
 // Unpause pool
 var poolAdmin = await lendingPoolAddressProvider.getEmergencyAdmin()
@@ -174,64 +179,95 @@ await lendingPoolConfigurator.connect(signer).setPoolPause(0)
 await lendingPool.paused()
 
 // Mint some intial balance
+var [signer, signer1, depositor, borrower, liquidator] = await ethers.getSigners();
 var reserves = await lendingPool.getReservesList()
 var USDC = await contractGetters.getMintableERC20(reserves[0])
-await USDC.mint(ethers.utils.parseEther('10'))
-var signer = await ethers.provider.getSigner()
-ethers.utils.formatEther(await USDC.balanceOf(await signer.getAddress()))
+var USDT = await contractGetters.getMintableERC20(reserves[1])
+var WETH = await contractGetters.getMintableERC20(reserves[2])
+await USDC.connect(signer).mint(ethers.utils.parseUnits('10', 6))
+await USDT.connect(signer1).mint(ethers.utils.parseUnits('10', 6))
+
+ethers.utils.formatUnits(await USDC.balanceOf(await signer.getAddress()), 6)
+ethers.utils.formatUnits(await USDT.balanceOf(await signer.getAddress()), 6)
+ethers.utils.formatUnits(await USDC.balanceOf(await signer1.getAddress()), 6)
+ethers.utils.formatUnits(await USDT.balanceOf(await signer1.getAddress()), 6)
 
 // Deposit funds in the pool
-await USDC.connect(signer).approve(lendingPool.address, ethers.utils.parseUnits('10'));
-await lendingPool.connect(signer).deposit(USDC.address, ethers.utils.parseUnits('10'), await signer.getAddress(), '0');
-await lendingPool.connect(signer).withdraw(USDC.address, ethers.utils.parseUnits('10'), await signer.getAddress());
+await USDC.connect(signer).approve(lendingPool.address, ethers.utils.parseUnits('10', 6));
+await USDT.connect(signer1).approve(lendingPool.address, ethers.utils.parseUnits('10', 6));
+await lendingPool.connect(signer).deposit(USDC.address, ethers.utils.parseUnits('10', 6), await signer.getAddress(), '0');
+await lendingPool.connect(signer1).deposit(USDT.address, ethers.utils.parseUnits('10', 6), await signer1.getAddress(), '0');
 
-// You can impersonate any Ethereum address
-await network.provider.request({ method: "hardhat_impersonateAccount",  params: ["0xb1adceddb2941033a090dd166a462fe1c2029484"]});
+await lendingPool.connect(signer).borrow(USDT.address, ethers.utils.parseUnits('5', 6), 2, 0, await signer.getAddress())
+await USDT.connect(signer).approve(lendingPool.address, ethers.utils.parseUnits('5', 6));
+await lendingPool.connect(signer).repay(USDT.address, ethers.utils.parseUnits('5', 6), 2, await signer.getAddress())
 
-const signer = await ethers.provider.getSigner("0xb1adceddb2941033a090dd166a462fe1c2029484")
+await lendingPool.connect(signer).withdraw(USDC.address, ethers.utils.parseUnits('10', 6), await signer.getAddress());
+await lendingPool.connect(signer1).withdraw(USDT.address, ethers.utils.parseUnits('10', 6), await signer1.getAddress());
 
-// ERC20 token DAI Mainnet instance
-const DAI = await contractGetters.getIErc20Detailed("0x6B175474E89094C44Da98b954EedeAC495271d0F");
+var reserveDataUSDT = await aaveProtocolDataProvider.getReserveData(USDT.address)
+var reserveDataUSDC = await aaveProtocolDataProvider.getReserveData(USDC.address)
+ethers.utils.formatEther(reserveDataUSDC.availableLiquidity)
+ethers.utils.formatEther(reserveDataUSDT.availableLiquidity)
+await lendingPool.connect(signer).flashLoan(mockFlashLoanReceiver.address, [USDT.address], [reserveDataUSDT.availableLiquidity], [0],   mockFlashLoanReceiver.address, '0x10', '0');
+ethers.utils.formatEther(reserveDataUSDC.availableLiquidity)
+ethers.utils.formatEther(reserveDataUSDT.availableLiquidity)
 
-// Approve 100 DAI to LendingPool address
-await DAI.connect(signer).approve(lendingPool.address, ethers.utils.parseUnits('100'));
+await USDC.connect(depositor).mint(ethers.utils.parseUnits('1000', 6))
+await USDC.connect(liduidator).mint(ethers.utils.parseUnits('1000', 6))
+await WETH.connect(borrower).mint(ethers.utils.parseEther('1'))
 
-// Deposit 100 DAI
-await lendingPool.connect(signer).deposit(DAI.address, ethers.utils.parseUnits('100'), await signer.getAddress(), '0');
+ethers.utils.formatUnits(await USDC.balanceOf(await depositor.getAddress()), 6)
+ethers.utils.formatUnits(await USDC.balanceOf(await liquidator.getAddress()), 6)
+ethers.utils.formatEther(await WETH.balanceOf(await liquidator.getAddress()))
+ethers.utils.formatEther(await WETH.balanceOf(await borrower.getAddress()))
+ethers.utils.formatUnits(await USDC.balanceOf(await borrower.getAddress()), 6)
 
-```
+await USDC.connect(depositor).approve(lendingPool.address, ethers.utils.parseUnits('1000', 6));
+await USDC.connect(liquidator).approve(lendingPool.address, ethers.utils.parseUnits('1000', 6));
+await WETH.connect(borrower).approve(lendingPool.address, ethers.utils.parseUnits('1'));
 
-## Interact with Aave in Mainnet via console
+await lendingPool.connect(depositor).deposit(USDC.address, ethers.utils.parseUnits('1000', 6), await depositor.getAddress(), '0');
+await lendingPool.connect(borrower).deposit(WETH.address, ethers.utils.parseUnits('1'), await borrower.getAddress(), '0');
 
-You can interact with Aave at Mainnet network using the Hardhat console, in the scenario where the frontend is down or you want to interact directly. You can check the deployed addresses at https://docs.aave.com/developers/deployed-contracts.
+var userGlobalData = await lendingPool.getUserAccountData(await borrower.getAddress());
 
-Run the Hardhat console pointing to the Mainnet network:
+var usdcPrice = await priceOracle.getAssetPrice(USDC.address);
 
-```
-docker-compose run contracts-env npx hardhat --network main console
-```
+var amountUSDCToBorrow = await contractHelpers.convertToCurrencyDecimals(
+  USDC.address,
+  new BigNumber(userGlobalData.availableBorrowsETH.toString())
+    .div(usdcPrice.toString())
+    .multipliedBy(0.9502)
+    .toFixed(0)
+);
 
-At the Hardhat console, you can interact with the protocol:
+await lendingPool.connect(borrower).borrow(USDC.address, amountUSDCToBorrow, '1', '0', borrower.address);
 
-```
-// Load the HRE into helpers to access signers
-run("set-DRE")
+//drops HF below 1
+await priceOracle.setAssetPrice(USDC.address, new BigNumber(usdcPrice.toString()).multipliedBy(1.12).toFixed(0));
 
-// Import getters to instance any Aave contract
-const contractGetters = require('./helpers/contracts-getters');
+var userReserveDataBefore = await aaveProtocolDataProvider.getUserReserveData(USDC.address, borrower.address);
 
-// Load the first signer
-const signer = await contractGetters.getFirstSigner();
+var usdcReserveDataBefore = await aaveProtocolDataProvider.getReserveData(USDC.address);
+var ethReserveDataBefore = await aaveProtocolDataProvider.getReserveData(WETH.address);
 
-// Lending pool instance
-const lendingPool = await contractGetters.getLendingPool("0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9");
+var amountToLiquidate = ethers.BigNumber.from(userReserveDataBefore1.currentStableDebt.toString()).div(2).toString();
 
-// ERC20 token DAI Mainnet instance
-const DAI = await contractGetters.getIErc20Detailed("0x6B175474E89094C44Da98b954EedeAC495271d0F");
+await lendingPool.connect(liquidator).liquidationCall(WETH.address, USDC.address, borrower.address, amountToLiquidate, false);
 
-// Approve 100 DAI to LendingPool address
-await DAI.connect(signer).approve(lendingPool.address, ethers.utils.parseUnits('100'));
+var userReserveDataAfter = await aaveProtocolDataProvider.getUserReserveData(USDC.address, borrower.address);
 
-// Deposit 100 DAI
-await lendingPool.connect(signer).deposit(DAI.address, ethers.utils.parseUnits('100'), await signer.getAddress(), '0');
+var userGlobalDataAfter = await lendingPool.getUserAccountData(borrower.address);
+
+var usdcReserveDataAfter = await aaveProtocolDataProvider.getReserveData(USDC.address);
+var ethReserveDataAfter = await aaveProtocolDataProvider.getReserveData(WETH.address);
+
+var collateralPrice = await priceOracle.getAssetPrice(WETH.address);
+var principalPrice = await priceOracle.getAssetPrice(USDC.address);
+
+const collateralDecimals = (await aaveProtocolDataProvider.getReserveConfigurationData(WETH.address)).decimals.toString();
+const principalDecimals = (await aaveProtocolDataProvider.getReserveConfigurationData(USDC.address)).decimals.toString();
+
+var expectedCollateralLiquidated = new BigNumber(principalPrice.toString()).times(new BigNumber(amountToLiquidate).times(105)).times(new BigNumber(10).pow(collateralDecimals)).div(new BigNumber(collateralPrice.toString()).times(new BigNumber(10).pow(principalDecimals))).div(100).decimalPlaces(0, BigNumber.ROUND_DOWN).toString();
 ```

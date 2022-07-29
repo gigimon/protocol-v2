@@ -86,15 +86,15 @@ task('dev:initialize-lending-pool', 'Initialize lending pool configuration.')
       mockFlashLoanReceiver.address
     );
 
-    await deployWalletBalancerProvider(verify);
+    // await deployWalletBalancerProvider(verify);
 
-    await insertContractAddressInDb(eContractid.AaveProtocolDataProvider, testHelpers.address);
+    // await insertContractAddressInDb(eContractid.AaveProtocolDataProvider, testHelpers.address);
 
-    const lendingPoolAddress = await addressesProvider.getLendingPool();
+    // const lendingPoolAddress = await addressesProvider.getLendingPool();
 
-    let gateway = getParamPerNetwork(WethGateway, network);
-    if (!notFalsyOrZeroAddress(gateway)) {
-      gateway = (await getWETHGateway()).address;
-    }
-    await authorizeWETHGateway(gateway, lendingPoolAddress);
+    // let gateway = getParamPerNetwork(WethGateway, network);
+    // if (!notFalsyOrZeroAddress(gateway)) {
+    //   gateway = (await getWETHGateway()).address;
+    // }
+    // await authorizeWETHGateway(gateway, lendingPoolAddress);
   });

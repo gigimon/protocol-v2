@@ -39,6 +39,9 @@ export const CommonsConfig: ICommonConfiguration = {
   },
   // TODO: reorg alphabetically, checking the reason of tests failing
   LendingRateOracleRatesCommon: {
+    WETH: {
+      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
+    },
     USDC: {
       borrowRate: oneRay.multipliedBy(0.039).toFixed(),
     },

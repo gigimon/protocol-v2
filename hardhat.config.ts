@@ -144,13 +144,15 @@ const buidlerConfig: HardhatUserConfig = {
       },
     },
     neonlabs: {
-      url: 'http://172.19.0.6:9090/solana',
-      accounts: ['0xa84fd3e60c233f7c7c5fc59e3bb3b87dece3063a8bd407bb7b1f2c1d58feaea5'],
+      url: 'http://172.18.0.4:9090/solana',
+      accounts: ['0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f080', 
+      '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f081', '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f082', 
+      '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f083', '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f084'],
       // @ts-ignore
       network_id: 111,
       chainId: 111,
       allowUnlimitedContractSize: false,
-      timeout: 1000000,
+      timeout: 100000000,
       // @ts-ignore
       isFork: true
     }

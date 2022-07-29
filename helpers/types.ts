@@ -336,7 +336,7 @@ export type iAvalanchePoolAssets<T> = Pick<
   'WETH' | 'DAI' | 'USDT' | 'AAVE' | 'WBTC' | 'WAVAX' | 'USDC'
 >;
 
-export type iNeonPoolAssets<T> = Pick<iAssetsWithoutUSD<T>, 'USDC' | 'USDT'>;
+export type iNeonPoolAssets<T> = Pick<iAssetsWithoutUSD<T>, 'USDC' | 'USDT' | 'WETH'>;
 
 export type iMultiPoolsAssets<T> = iAssetCommon<T> | iAavePoolAssets<T> | iNeonPoolAssets<T>;
 
