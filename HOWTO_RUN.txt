@@ -1,0 +1,36 @@
+========================================================================
+docker-compose -f docker-compose.neon.yml up -d
+
+подправить hardhat.config.ts:
+    neonlabs: {
+      url: 'http://127.0.0.1:9090/solana',
+
+проверить, что прокси доступен по порту:
+sudo netstat -tnlp | grep 9090
+=> tcp 0 0 0.0.0.0:9090 0.0.0.0:* LISTEN -
+
+Нужны NEONы на счетах деплоя. Секретные ключи в hardhat.config.ts:
+'0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f080'
+'0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f081'
+'0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f082'
+'0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f083'
+'0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f084'
+
+Запросить NEONы:
+for i in 0x5fbb0bca991c333f586ff3a1d1af9dc741138239 0xb7b375505001a5dcc0747ee385ecfd304b41db7f 0xc6d37720abfdecb9f27b8d51258c8608802b8481 0xee0246b7ed519a4fd145eee2dcf52f7f73f2a8d7 0xf6fef069a24a2647bc535ba4b2ffdd9735e9a63b;
+do 
+    curl http://127.0.0.1:3333/request_neon -X POST -H "Content-Type: application/json" -v -d '{"amount":10000, "wallet":"'$i'"}' 2> /dev/null;
+done
+(скрипт request-neons.sh)
+
+Собрать образ AAVE:
+docker build -t contracts-env .
+
+Создать пустой файл .env (иначе отказывается работать).
+
+Запустить контейнер AAVE:
+docker-compose up
+
+В другом терминале выполнить деплой:
+docker-compose run contracts-env npm run neonlabs:deploy
+========================================================================

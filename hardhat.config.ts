@@ -144,7 +144,7 @@ const buidlerConfig: HardhatUserConfig = {
       },
     },
     neonlabs: {
-      url: 'http://172.18.0.4:9090/solana',
+      url: 'http://127.0.0.1:9090/solana',
       accounts: ['0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f080', 
       '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f081', '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f082', 
       '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f083', '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f084'],

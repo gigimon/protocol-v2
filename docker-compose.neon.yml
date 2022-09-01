@@ -25,18 +25,6 @@ services:
       start_period: 5s
     entrypoint: /opt/solana/bin/solana-run-neon.sh
 
-  proxy_program_loader:
-    container_name: proxy_program_loader
-    image: neonlabsorg/evm_loader:ci-proxy-caller-program
-    environment:
-      - SOLANA_URL=http://solana:8899
-    networks:
-      - net
-    depends_on:
-      solana:
-        condition: service_healthy
-    command: bash -c "deploy-proxy_program.sh"
-
   postgres:
     container_name: postgres
     image: postgres:14.0
@@ -61,7 +49,7 @@ services:
 
   dbcreation:
     container_name: dbcreation
-    image: neonlabsorg/proxy:${REVISION}
+    image: neonlabsorg/proxy:latest
     environment:
       SOLANA_URL: http://solana:8899
       POSTGRES_DB: neon-db
@@ -78,7 +66,7 @@ services:
 
   proxy:
     container_name: proxy
-    image: neonlabsorg/proxy:ci-unknown-receipt
+    image: neonlabsorg/proxy:latest
     environment:
       SOLANA_URL: http://solana:8899
       FAUCET_URL: http://faucet:3333
@@ -121,7 +109,7 @@ services:
 
   deploy_contracts:
     container_name: deploy_contracts
-    image: neonlabsorg/evm_loader:${NEON_EVM_COMMIT}
+    image: neonlabsorg/evm_loader:ci-more-accounts-128
     environment:
       - SOLANA_URL=http://solana:8899
       - SPL_TOKEN_AUTHORITY=/opt/contracts/ci-tokens/owner-keypair.json
@@ -134,7 +122,7 @@ services:
 
   faucet:
     container_name: faucet
-    image: neonlabsorg/faucet:${FAUCET_COMMIT}
+    image: neonlabsorg/faucet:latest
     environment:
       FAUCET_RPC_BIND: 0.0.0.0
       FAUCET_RPC_PORT: 3333
@@ -169,7 +157,7 @@ services:
 
   airdropper:
     container_name: airdropper
-    image: neonlabsorg/proxy:${REVISION}
+    image: neonlabsorg/proxy:latest
     environment:
       POSTGRES_DB: neon-db
       POSTGRES_USER: neon-proxy
@@ -198,14 +186,15 @@ services:
 
   indexer:
     container_name: indexer
-    image: neonlabsorg/proxy:v0.9.5
+    image: neonlabsorg/proxy:latest
     environment:
       SOLANA_URL: http://solana:8899
       POSTGRES_DB: neon-db
       POSTGRES_USER: neon-proxy
       POSTGRES_PASSWORD: neon-proxy-pass
+      POSTGRES_HOST: postgres
       GATHER_STATISTICS: "YES"
-      LOG_FULL_OBJECT_INFO: "YES"
+      LOG_FULL_OBJECT_INFO: "NO"
       CONFIG: ci
       EVM_LOADER: 53DfF883gyixYNXnM7s5xhdeyV8mVk9T4i2hGV9vG9io
     hostname: indexer
