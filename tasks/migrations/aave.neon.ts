@@ -39,13 +39,9 @@ task('aave:neon', 'Test scenarios on NEON')
     var WETH = await getMintableERC20(reserves[2]);
 
     await USDC.connect(user1).mint(DRE.ethers.utils.parseUnits('10', 6));
-    console.log('---- WAITING ----');
-    await new Promise(resolve => setTimeout(resolve, 10000));
     await USDT.connect(user2).mint(DRE.ethers.utils.parseUnits('10', 6));
-    console.log('---- WAITING ----');
-    await new Promise(resolve => setTimeout(resolve, 10000));
 
-    console.log('Initial balances');
+    console.log('Intitial balances');
     console.log(
       'User 1 USDC: ',
       DRE.ethers.utils.formatUnits(await USDC.balanceOf(await user1.getAddress()), 6),
@@ -66,25 +62,15 @@ task('aave:neon', 'Test scenarios on NEON')
     console.log('Pool paused: ', await lendingPool.paused());
 
     console.log('');
-    console.log('---- WAITING ----');
-    await new Promise(resolve => setTimeout(resolve, 10000));
-
-    console.log('');
     console.log('Depositing 10 USDC from user 1 and 10 USDT from user 2 into the pool');
     await USDC.connect(user1).approve(lendingPool.address, DRE.ethers.utils.parseUnits('10', 6));
-    console.log('---- WAITING ----');
-    await new Promise(resolve => setTimeout(resolve, 10000));
     await USDT.connect(user2).approve(lendingPool.address, DRE.ethers.utils.parseUnits('10', 6));
-    console.log('---- WAITING ----');
-    await new Promise(resolve => setTimeout(resolve, 10000));
     await lendingPool
       .connect(user1)
       .deposit(USDC.address, DRE.ethers.utils.parseUnits('10', 6), await user1.getAddress(), '0');
     await lendingPool
       .connect(user2)
       .deposit(USDT.address, DRE.ethers.utils.parseUnits('10', 6), await user2.getAddress(), '0');
-    console.log('---- WAITING ----');
-    await new Promise(resolve => setTimeout(resolve, 10000));
     console.log('Current balances');
     console.log(
       'User 1 USDC:',
@@ -115,10 +101,9 @@ task('aave:neon', 'Test scenarios on NEON')
 
     console.log('');
     console.log('User 1 borrows 5 USDT');
-    var tx = await lendingPool
+    await lendingPool
       .connect(user1)
       .borrow(USDT.address, DRE.ethers.utils.parseUnits('5', 6), 2, 0, await user1.getAddress());
-    await tx.wait(30);
     console.log('Current balances');
     console.log(
       'User 1 USDC: ',
@@ -143,12 +128,10 @@ task('aave:neon', 'Test scenarios on NEON')
 
     console.log('');
     console.log('User 1 repays 5 USDT');
-    var tx = await USDT.connect(user1).approve(lendingPool.address, DRE.ethers.utils.parseUnits('5', 6));
-    await tx.wait(30);
-    var tx = await lendingPool
+    await USDT.connect(user1).approve(lendingPool.address, DRE.ethers.utils.parseUnits('5', 6));
+    await lendingPool
       .connect(user1)
       .repay(USDT.address, DRE.ethers.utils.parseUnits('5', 6), 2, await user1.getAddress());
-    await tx.wait(30);
     console.log(
       'User 1 USDC: ',
       DRE.ethers.utils.formatUnits(await USDC.balanceOf(await user1.getAddress()), 6),
