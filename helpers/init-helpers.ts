@@ -158,6 +158,31 @@ export const initReservesByHelper = async (
       await configurator.batchInitReserve(chunkedInitInputParams[chunkIndex])
     );
 
+    // Enabling borrow for pools
+    await waitForTx(
+      await configurator.enableBorrowingOnReserve(
+        chunkedInitInputParams[chunkIndex][0].underlyingAsset,
+        true
+      )
+    );
+
+    // Enabling reserve stable rate
+    await waitForTx(
+      await configurator.enableReserveStableRate(
+        chunkedInitInputParams[chunkIndex][0].underlyingAsset
+      )
+    );
+
+    // Enable reserve as collateral
+    await waitForTx(
+      await configurator.configureReserveAsCollateral(
+        chunkedInitInputParams[chunkIndex][0].underlyingAsset,
+        7500,
+        8000,
+        10500
+      )
+    );
+
     console.log(`  - Reserve ready for: ${chunkedSymbols[chunkIndex].join(', ')}`);
     console.log('    * gasUsed', tx3.gasUsed.toString());
   }

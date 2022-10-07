@@ -10,6 +10,7 @@ build/
 /types
 
 deployed-contracts.json
+package-lock.json
 
 coverage
 .coverage_artifacts

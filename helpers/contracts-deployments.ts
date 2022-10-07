@@ -507,16 +507,28 @@ export const deployAllMockTokens = async (verify?: boolean) => {
 
   const protoConfigData = getReservesConfigByPool(AavePools.neon);
 
+  let i = 0;
+
   for (const tokenSymbol of Object.keys(TokenContractId)) {
     let decimals = '18';
 
+    if (i > 2) break;
+    i += 1;
+
     let configData = (<any>protoConfigData)[tokenSymbol];
+
+    console.log(`Depoloying ${tokenSymbol.toUpperCase()}`);
 
     tokens[tokenSymbol] = await deployMintableERC20(
       [tokenSymbol, tokenSymbol, configData ? configData.reserveDecimals : decimals],
       verify
     );
+
+    console.log(`${tokenSymbol.toUpperCase()} Depoloyed successfully!`);
+    console.log(`Registering ${tokenSymbol.toUpperCase()}`);
+
     await registerContractInJsonDb(tokenSymbol.toUpperCase(), tokens[tokenSymbol]);
+    console.log(`${tokenSymbol.toUpperCase()} Registered successfully`);
   }
   return tokens;
 };

@@ -27,16 +27,24 @@ task('aave:neon', 'Test scenarios on NEON')
 
     // Lending pool instance
     var lendingPool = await getLendingPool();
+    console.log(`Lending Pool Address ${lendingPool.address}`);
     var lendingPoolConfigurator = await getLendingPoolConfiguratorProxy();
     var priceOracle = await getPriceOracle();
     var aaveProtocolDataProvider = await getAaveProtocolDataProvider();
     var mockFlashLoanReceiver = await getMockFlashLoanReceiver();
 
     var [user1, user2, depositor, borrower, liquidator] = await DRE.ethers.getSigners();
+
     var reserves = await lendingPool.getReservesList();
+
+    console.log(reserves);
+
     var USDC = await getMintableERC20(reserves[0]);
     var USDT = await getMintableERC20(reserves[1]);
     var WETH = await getMintableERC20(reserves[2]);
+    console.log(USDC.address);
+    console.log(USDT.address);
+    console.log(WETH.address);
 
     await USDC.connect(user1).mint(DRE.ethers.utils.parseUnits('10', 6));
     await USDT.connect(user2).mint(DRE.ethers.utils.parseUnits('10', 6));
@@ -67,10 +75,14 @@ task('aave:neon', 'Test scenarios on NEON')
     await USDT.connect(user2).approve(lendingPool.address, DRE.ethers.utils.parseUnits('10', 6));
     await lendingPool
       .connect(user1)
-      .deposit(USDC.address, DRE.ethers.utils.parseUnits('10', 6), await user1.getAddress(), '0');
+      .deposit(USDC.address, DRE.ethers.utils.parseUnits('10', 6), await user1.getAddress(), '0', {
+        gasLimit: 10000000,
+      });
     await lendingPool
       .connect(user2)
-      .deposit(USDT.address, DRE.ethers.utils.parseUnits('10', 6), await user2.getAddress(), '0');
+      .deposit(USDT.address, DRE.ethers.utils.parseUnits('10', 6), await user2.getAddress(), '0', {
+        gasLimit: 10000000,
+      });
     console.log('Current balances');
     console.log(
       'User 1 USDC:',
@@ -101,21 +113,37 @@ task('aave:neon', 'Test scenarios on NEON')
 
     console.log('');
     console.log('User 1 borrows 5 USDT');
-    await lendingPool
+    let tx = await lendingPool
       .connect(user1)
-      .borrow(USDT.address, DRE.ethers.utils.parseUnits('5', 6), 2, 0, await user1.getAddress());
+      .borrow(USDT.address, DRE.ethers.utils.parseUnits('5', 6), 2, 0, await user1.getAddress(), {
+        gasLimit: 10000000,
+      });
+
+    await tx.wait();
+
+    var AUSDTToken = await getMintableERC20(AUSDT);
+    var AUSDCToken = await getMintableERC20(AUSDC);
+
     console.log('Current balances');
     console.log(
       'User 1 USDC: ',
       DRE.ethers.utils.formatUnits(await USDC.balanceOf(await user1.getAddress()), 6),
       ' USDT: ',
-      DRE.ethers.utils.formatUnits(await USDT.balanceOf(await user1.getAddress()), 6)
+      DRE.ethers.utils.formatUnits(await USDT.balanceOf(await user1.getAddress()), 6),
+      ' AUSDT: ',
+      DRE.ethers.utils.formatUnits(await AUSDTToken.balanceOf(await user1.getAddress()), 6),
+      ' AUSDC: ',
+      DRE.ethers.utils.formatUnits(await AUSDCToken.balanceOf(await user1.getAddress()), 6)
     );
     console.log(
       'User 2 USDC: ',
       DRE.ethers.utils.formatUnits(await USDC.balanceOf(await user2.getAddress()), 6),
       ' USDT: ',
-      DRE.ethers.utils.formatUnits(await USDT.balanceOf(await user2.getAddress()), 6)
+      DRE.ethers.utils.formatUnits(await USDT.balanceOf(await user2.getAddress()), 6),
+      ' AUSDT: ',
+      DRE.ethers.utils.formatUnits(await AUSDTToken.balanceOf(await user2.getAddress()), 6),
+      ' AUSDC: ',
+      DRE.ethers.utils.formatUnits(await AUSDCToken.balanceOf(await user2.getAddress()), 6)
     );
     console.log(
       'Pool USDC balance:  ',
@@ -131,7 +159,9 @@ task('aave:neon', 'Test scenarios on NEON')
     await USDT.connect(user1).approve(lendingPool.address, DRE.ethers.utils.parseUnits('5', 6));
     await lendingPool
       .connect(user1)
-      .repay(USDT.address, DRE.ethers.utils.parseUnits('5', 6), 2, await user1.getAddress());
+      .repay(USDT.address, DRE.ethers.utils.parseUnits('5', 6), 2, await user1.getAddress(), {
+        gasLimit: 10000000,
+      });
     console.log(
       'User 1 USDC: ',
       DRE.ethers.utils.formatUnits(await USDC.balanceOf(await user1.getAddress()), 6),
@@ -163,7 +193,10 @@ task('aave:neon', 'Test scenarios on NEON')
         [0],
         mockFlashLoanReceiver.address,
         '0x10',
-        '0'
+        '0',
+        {
+          gasLimit: 10000000,
+        }
       );
     reserveDataUSDT = await aaveProtocolDataProvider.getReserveData(USDT.address);
     console.log(
@@ -174,10 +207,14 @@ task('aave:neon', 'Test scenarios on NEON')
     console.log('User 1 and User 2 withdraw their deposits from the protocol');
     await lendingPool
       .connect(user1)
-      .withdraw(USDC.address, DRE.ethers.utils.parseUnits('10', 6), await user1.getAddress());
+      .withdraw(USDC.address, DRE.ethers.utils.parseUnits('10', 6), await user1.getAddress(), {
+        gasLimit: 10000000,
+      });
     await lendingPool
       .connect(user2)
-      .withdraw(USDT.address, DRE.ethers.utils.parseUnits('10', 6), await user2.getAddress());
+      .withdraw(USDT.address, DRE.ethers.utils.parseUnits('10', 6), await user2.getAddress(), {
+        gasLimit: 10000000,
+      });
     console.log('Current balances');
     console.log(
       'User 1: USDC',
@@ -244,11 +281,16 @@ task('aave:neon', 'Test scenarios on NEON')
         USDC.address,
         DRE.ethers.utils.parseUnits('1000', 6),
         await depositor.getAddress(),
-        '0'
+        '0',
+        {
+          gasLimit: 10000000,
+        }
       );
     await lendingPool
       .connect(borrower)
-      .deposit(WETH.address, DRE.ethers.utils.parseUnits('1'), await borrower.getAddress(), '0');
+      .deposit(WETH.address, DRE.ethers.utils.parseUnits('1'), await borrower.getAddress(), '0', {
+        gasLimit: 10000000,
+      });
 
     var userGlobalData = await lendingPool.getUserAccountData(await borrower.getAddress());
 
@@ -270,7 +312,9 @@ task('aave:neon', 'Test scenarios on NEON')
     );
     await lendingPool
       .connect(borrower)
-      .borrow(USDC.address, amountUSDCToBorrow, '1', '0', borrower.address);
+      .borrow(USDC.address, amountUSDCToBorrow, '1', '0', borrower.address, {
+        gasLimit: 10000000,
+      });
 
     console.log('Borrower borrows USDC');
     console.log(
@@ -280,83 +324,85 @@ task('aave:neon', 'Test scenarios on NEON')
       DRE.ethers.utils.formatUnits(await WETH.balanceOf(await borrower.getAddress()), 18)
     );
 
-    //drops HF below 1
-    console.log('Dropping health factor below 1...');
-    await priceOracle.setAssetPrice(
-      USDC.address,
-      new BigNumber(usdcPrice.toString()).multipliedBy(1.12).toFixed(0)
-    );
+    // //drops HF below 1
+    // console.log('Dropping health factor below 1...');
+    // await priceOracle.setAssetPrice(
+    //   USDC.address,
+    //   new BigNumber(usdcPrice.toString()).multipliedBy(1.12).toFixed(0)
+    // );
 
-    var userGlobalDataBefore = await lendingPool.getUserAccountData(await borrower.getAddress());
-    console.log(
-      'Borrower health factor: ',
-      DRE.ethers.utils.formatEther(userGlobalDataBefore.healthFactor)
-    );
+    // var userGlobalDataBefore = await lendingPool.getUserAccountData(await borrower.getAddress());
+    // console.log(
+    //   'Borrower health factor: ',
+    //   DRE.ethers.utils.formatEther(userGlobalDataBefore.healthFactor)
+    // );
 
-    var userReserveDataBefore = await aaveProtocolDataProvider.getUserReserveData(
-      USDC.address,
-      borrower.address
-    );
+    // var userReserveDataBefore = await aaveProtocolDataProvider.getUserReserveData(
+    //   USDC.address,
+    //   borrower.address
+    // );
 
-    var usdcReserveDataBefore = await aaveProtocolDataProvider.getReserveData(USDC.address);
-    var ethReserveDataBefore = await aaveProtocolDataProvider.getReserveData(WETH.address);
+    // var usdcReserveDataBefore = await aaveProtocolDataProvider.getReserveData(USDC.address);
+    // var ethReserveDataBefore = await aaveProtocolDataProvider.getReserveData(WETH.address);
 
-    var amountToLiquidate = DRE.ethers.BigNumber.from(
-      userReserveDataBefore.currentStableDebt.toString()
-    )
-      .div(2)
-      .toString();
-    console.log('Can liquidate ', DRE.ethers.utils.formatUnits(amountToLiquidate, 6), 'USDC');
+    // var amountToLiquidate = DRE.ethers.BigNumber.from(
+    //   userReserveDataBefore.currentStableDebt.toString()
+    // )
+    //   .div(2)
+    //   .toString();
+    // console.log('Can liquidate ', DRE.ethers.utils.formatUnits(amountToLiquidate, 6), 'USDC');
 
-    console.log('');
-    console.log('Performing liquidation ...');
-    await lendingPool
-      .connect(liquidator)
-      .liquidationCall(WETH.address, USDC.address, borrower.address, amountToLiquidate, false);
+    // console.log('');
+    // console.log('Performing liquidation ...');
+    // await lendingPool
+    //   .connect(liquidator)
+    //   .liquidationCall(WETH.address, USDC.address, borrower.address, amountToLiquidate, false, {
+    //     gasLimit: 10000000,
+    //   });
 
-    var userReserveDataAfter = await aaveProtocolDataProvider.getUserReserveData(
-      USDC.address,
-      borrower.address
-    );
+    // var userReserveDataAfter = await aaveProtocolDataProvider.getUserReserveData(
+    //   USDC.address,
+    //   borrower.address
+    // );
 
-    var userGlobalDataAfter = await lendingPool.getUserAccountData(borrower.address);
-    console.log(
-      'New borrower health factor: ',
-      DRE.ethers.utils.formatEther(userGlobalDataAfter.healthFactor)
-    );
+    // var userGlobalDataAfter = await lendingPool.getUserAccountData(borrower.address);
+    // console.log(
+    //   'New borrower health factor: ',
+    //   DRE.ethers.utils.formatEther(userGlobalDataAfter.healthFactor)
+    // );
 
-    var usdcReserveDataAfter = await aaveProtocolDataProvider.getReserveData(USDC.address);
-    var ethReserveDataAfter = await aaveProtocolDataProvider.getReserveData(WETH.address);
+    // var usdcReserveDataAfter = await aaveProtocolDataProvider.getReserveData(USDC.address);
+    // var ethReserveDataAfter = await aaveProtocolDataProvider.getReserveData(WETH.address);
 
-    var collateralPrice = await priceOracle.getAssetPrice(WETH.address);
-    var principalPrice = await priceOracle.getAssetPrice(USDC.address);
+    // var collateralPrice = await priceOracle.getAssetPrice(WETH.address);
+    // var principalPrice = await priceOracle.getAssetPrice(USDC.address);
 
-    const collateralDecimals = (
-      await aaveProtocolDataProvider.getReserveConfigurationData(WETH.address)
-    ).decimals.toString();
-    const principalDecimals = (
-      await aaveProtocolDataProvider.getReserveConfigurationData(USDC.address)
-    ).decimals.toString();
+    // const collateralDecimals = (
+    //   await aaveProtocolDataProvider.getReserveConfigurationData(WETH.address)
+    // ).decimals.toString();
+    // const principalDecimals = (
+    //   await aaveProtocolDataProvider.getReserveConfigurationData(USDC.address)
+    // ).decimals.toString();
 
-    var expectedCollateralLiquidated = new BigNumber(principalPrice.toString())
-      .times(new BigNumber(amountToLiquidate).times(105))
-      .times(new BigNumber(10).pow(collateralDecimals))
-      .div(
-        new BigNumber(collateralPrice.toString()).times(new BigNumber(10).pow(principalDecimals))
-      )
-      .div(100)
-      .decimalPlaces(0, BigNumber.ROUND_DOWN)
-      .toString();
-    console.log(
-      'Expected collateral liquidated: ',
-      DRE.ethers.utils.formatEther(expectedCollateralLiquidated)
-    );
-    console.log(
-      'Liquidator: USDC: ',
-      DRE.ethers.utils.formatUnits(await USDC.balanceOf(await liquidator.getAddress()), 6),
-      ' WETH: ',
-      DRE.ethers.utils.formatUnits(await WETH.balanceOf(await liquidator.getAddress()), 18)
-    );
+    // var expectedCollateralLiquidated = new BigNumber(principalPrice.toString())
+    //   .times(new BigNumber(amountToLiquidate).times(105))
+    //   .times(new BigNumber(10).pow(collateralDecimals))
+    //   .div(
+    //     new BigNumber(collateralPrice.toString()).times(new BigNumber(10).pow(principalDecimals))
+    //   )
+    //   .div(100)
+    //   .decimalPlaces(0, BigNumber.ROUND_DOWN)
+    //   .toString();
+    // console.log(
+    //   'Expected collateral liquidated: ',
+    //   DRE.ethers.utils.formatEther(expectedCollateralLiquidated)
+    // );
+    // console.log(
+    //   'Liquidator: USDC: ',
+    //   DRE.ethers.utils.formatUnits(await USDC.balanceOf(await liquidator.getAddress()), 6),
+    //   ' WETH: ',
+    //   DRE.ethers.utils.formatUnits(await WETH.balanceOf(await liquidator.getAddress()), 18)
+    // );
 
     console.log('');
     console.log('Test scenario finished with success!');

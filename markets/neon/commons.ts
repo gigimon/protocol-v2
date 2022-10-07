@@ -39,15 +39,24 @@ export const CommonsConfig: ICommonConfiguration = {
   },
   // TODO: reorg alphabetically, checking the reason of tests failing
   LendingRateOracleRatesCommon: {
-    WETH: {
-      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
-    },
-    USDC: {
+    DAI: {
       borrowRate: oneRay.multipliedBy(0.039).toFixed(),
     },
-    USDT: {
+    AAVE: {
+      borrowRate: oneRay.multipliedBy(0.03).toFixed(),
+    },
+    TUSD: {
       borrowRate: oneRay.multipliedBy(0.035).toFixed(),
     },
+    // WETH: {
+    //   borrowRate: oneRay.multipliedBy(0.03).toFixed(),
+    // },
+    // USDC: {
+    //   borrowRate: oneRay.multipliedBy(0.039).toFixed(),
+    // },
+    // USDT: {
+    //   borrowRate: oneRay.multipliedBy(0.035).toFixed(),
+    // },
   },
   // ----------------
   // COMMON PROTOCOL ADDRESSES ACROSS POOLS
