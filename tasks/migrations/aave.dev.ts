@@ -3,6 +3,8 @@ import { checkVerification } from '../../helpers/etherscan-verification';
 import { ConfigNames } from '../../helpers/configuration';
 import { printContracts } from '../../helpers/misc-utils';
 
+import { getChainlinkOracle } from '../../helpers/contracts-getters';
+
 task('aave:dev', 'Deploy development enviroment')
   .addFlag('verify', 'Verify contracts at Etherscan')
   .setAction(async ({ verify }, localBRE) => {
@@ -16,6 +18,11 @@ task('aave:dev', 'Deploy development enviroment')
     }
 
     console.log('Migration started\n');
+
+    // NOTE: checking chainlink oracle
+    let chainlinkOracle = await getChainlinkOracle('0x80662336874834355167abA8f524093e6ff77024');
+    let price = await chainlinkOracle.latestAnswer();
+    console.log(`Token price: ${price}`);
 
     console.log('1. Deploy mock tokens');
     await localBRE.run('dev:deploy-mock-tokens', { verify });

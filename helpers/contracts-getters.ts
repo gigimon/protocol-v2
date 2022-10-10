@@ -35,6 +35,7 @@ import {
   FlashLiquidationAdapterFactory,
 } from '../types';
 import { IERC20DetailedFactory } from '../types/IERC20DetailedFactory';
+import { IChainlinkAggregatorFactory } from '../types/IChainlinkAggregatorFactory';
 import { getEthersSigners, MockTokenMap } from './contracts-helpers';
 import { DRE, getDb, notFalsyOrZeroAddress, omit } from './misc-utils';
 import { eContractid, PoolConfiguration, tEthereumAddress, TokenContractId } from './types';
@@ -71,6 +72,15 @@ export const getLendingPool = async (address?: tEthereumAddress) =>
 
 export const getPriceOracle = async (address?: tEthereumAddress) =>
   await PriceOracleFactory.connect(
+    address ||
+      (
+        await getDb().get(`${eContractid.PriceOracle}.${DRE.network.name}`).value()
+      ).address,
+    await getFirstSigner()
+  );
+
+export const getChainlinkOracle = async (address?: tEthereumAddress) =>
+  await IChainlinkAggregatorFactory.connect(
     address ||
       (
         await getDb().get(`${eContractid.PriceOracle}.${DRE.network.name}`).value()
@@ -424,23 +434,26 @@ export const getFlashLiquidationAdapter = async (address?: tEthereumAddress) =>
 export const getMockParaSwapAugustus = async (address?: tEthereumAddress) =>
   await MockParaSwapAugustusFactory.connect(
     address ||
-      (await getDb().get(`${eContractid.MockParaSwapAugustus}.${DRE.network.name}`).value())
-        .address,
+      (
+        await getDb().get(`${eContractid.MockParaSwapAugustus}.${DRE.network.name}`).value()
+      ).address,
     await getFirstSigner()
   );
 
 export const getMockParaSwapAugustusRegistry = async (address?: tEthereumAddress) =>
   await MockParaSwapAugustusRegistryFactory.connect(
     address ||
-      (await getDb().get(`${eContractid.MockParaSwapAugustusRegistry}.${DRE.network.name}`).value())
-        .address,
+      (
+        await getDb().get(`${eContractid.MockParaSwapAugustusRegistry}.${DRE.network.name}`).value()
+      ).address,
     await getFirstSigner()
   );
 
 export const getParaSwapLiquiditySwapAdapter = async (address?: tEthereumAddress) =>
   await ParaSwapLiquiditySwapAdapterFactory.connect(
     address ||
-      (await getDb().get(`${eContractid.ParaSwapLiquiditySwapAdapter}.${DRE.network.name}`).value())
-        .address,
+      (
+        await getDb().get(`${eContractid.ParaSwapLiquiditySwapAdapter}.${DRE.network.name}`).value()
+      ).address,
     await getFirstSigner()
   );
