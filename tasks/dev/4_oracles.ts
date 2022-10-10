@@ -56,9 +56,9 @@ task('dev:deploy-oracles', 'Deploy oracles for dev environment')
     console.log('__________________________________');
 
     const allAggregatorsAddresses = {
-      DAI: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-      AAVE: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-      TUSD: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
+      DAI: '0x80662336874834355167abA8f524093e6ff77024',
+      AAVE: '0x80662336874834355167abA8f524093e6ff77024',
+      TUSD: '0x80662336874834355167abA8f524093e6ff77024',
     };
     //   BAT: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
     //   WETH: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
@@ -106,7 +106,7 @@ task('dev:deploy-oracles', 'Deploy oracles for dev environment')
       OracleQuoteCurrency
     );
 
-    await deployAaveOracle(
+    const aaveOracle = await deployAaveOracle(
       [
         tokens,
         aggregators,
@@ -116,7 +116,8 @@ task('dev:deploy-oracles', 'Deploy oracles for dev environment')
       ],
       verify
     );
-    await waitForTx(await addressesProvider.setPriceOracle(fallbackOracle.address));
+    // await waitForTx(await addressesProvider.setPriceOracle(fallbackOracle.address));
+    await waitForTx(await addressesProvider.setPriceOracle(aaveOracle.address));
 
     const lendingRateOracle = await deployLendingRateOracle(verify);
     await waitForTx(await addressesProvider.setLendingRateOracle(lendingRateOracle.address));

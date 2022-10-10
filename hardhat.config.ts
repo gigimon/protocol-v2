@@ -159,9 +159,10 @@ const buidlerConfig: HardhatUserConfig = {
     devnet: {
       // url: 'https://proxy.devnet.neonlabs.org/solana',
       url: 'https://devnet.neonevm.org',
-      accounts: [ '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f080',
+      accounts: [ 
       '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f081', '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f082', 
-      '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f083', '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f084'],
+      '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f083', '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f084',
+      '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f080'],
       gas: DEFAULT_BLOCK_GAS_LIMIT,
       // @ts-ignore
       network_id: 245022926,
