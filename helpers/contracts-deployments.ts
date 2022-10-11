@@ -11,7 +11,7 @@ import {
   PoolConfiguration,
   eEthereumNetwork,
 } from './types';
-import { MintableERC20 } from '../types/MintableERC20';
+import { MintableERC20 } from '../types';
 import { MockContract } from 'ethereum-waffle';
 import { ConfigNames, getReservesConfigByPool, loadPoolConfig } from './configuration';
 import { getFirstSigner } from './contracts-getters';
@@ -41,6 +41,7 @@ import {
   MockUniswapV2Router02Factory,
   ParaSwapLiquiditySwapAdapterFactory,
   PriceOracleFactory,
+  ProxyOracleFactory,
   ReserveLogicFactory,
   SelfdestructTransferFactory,
   StableDebtTokenFactory,
@@ -65,8 +66,8 @@ import {
   verifyContract,
   getOptionalParamAddressPerNetwork,
 } from './contracts-helpers';
-import { StableAndVariableTokensHelperFactory } from '../types/StableAndVariableTokensHelperFactory';
-import { MintableDelegationERC20 } from '../types/MintableDelegationERC20';
+import { StableAndVariableTokensHelperFactory } from '../types';
+import { MintableDelegationERC20 } from '../types';
 import { readArtifact as buidlerReadArtifact } from '@nomiclabs/buidler/plugins';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { LendingPoolLibraryAddresses } from '../types/LendingPoolFactory';
@@ -258,6 +259,14 @@ export const deployPriceOracle = async (verify?: boolean) =>
     await new PriceOracleFactory(await getFirstSigner()).deploy(),
     eContractid.PriceOracle,
     [],
+    verify
+  );
+
+export const deployProxyOracle = async (oracleAddress: string, verify?: boolean) =>
+  withSaveAndVerify(
+    await new ProxyOracleFactory(await getFirstSigner()).deploy(oracleAddress),
+    eContractid.PriceOracle,
+    [oracleAddress],
     verify
   );
 
@@ -517,14 +526,14 @@ export const deployAllMockTokens = async (verify?: boolean) => {
 
     let configData = (<any>protoConfigData)[tokenSymbol];
 
-    console.log(`Depoloying ${tokenSymbol.toUpperCase()}`);
+    console.log(`Deploying ${tokenSymbol.toUpperCase()}`);
 
     tokens[tokenSymbol] = await deployMintableERC20(
       [tokenSymbol, tokenSymbol, configData ? configData.reserveDecimals : decimals],
       verify
     );
 
-    console.log(`${tokenSymbol.toUpperCase()} Depoloyed successfully!`);
+    console.log(`${tokenSymbol.toUpperCase()} Deployed successfully!`);
     console.log(`Registering ${tokenSymbol.toUpperCase()}`);
 
     await registerContractInJsonDb(tokenSymbol.toUpperCase(), tokens[tokenSymbol]);
