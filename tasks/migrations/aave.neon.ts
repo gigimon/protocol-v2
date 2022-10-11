@@ -36,24 +36,21 @@ task('aave:neon', 'Test scenarios on NEON')
     let DAI = await getMintableERC20(reserves[0]);
     let AAVE = await getMintableERC20(reserves[1]);
     let TUSD = await getMintableERC20(reserves[2]);
-    console.log(DAI.address);
-    console.log(AAVE.address);
-    console.log(TUSD.address);
 
     await DAI.connect(user1).mint(DRE.ethers.utils.parseUnits('10', 6));
     await AAVE.connect(user2).mint(DRE.ethers.utils.parseUnits('10', 6));
 
     console.log('Initial balances');
     console.log(
-      'User 1 USDC: ',
+      'User 1 DAI: ',
       DRE.ethers.utils.formatUnits(await DAI.balanceOf(await user1.getAddress()), 6),
-      ' USDT: ',
+      ' AAVE: ',
       DRE.ethers.utils.formatUnits(await AAVE.balanceOf(await user1.getAddress()), 6)
     );
     console.log(
-      'User 2 USDC: ',
+      'User 2 DAI: ',
       DRE.ethers.utils.formatUnits(await DAI.balanceOf(await user2.getAddress()), 6),
-      ' USDT: ',
+      ' AAVE: ',
       DRE.ethers.utils.formatUnits(await AAVE.balanceOf(await user2.getAddress()), 6)
     );
 
@@ -63,7 +60,7 @@ task('aave:neon', 'Test scenarios on NEON')
     await lendingPoolConfigurator.connect(poolAdminUser1).setPoolPause(false);
     console.log('Pool paused: ', await lendingPool.paused());
 
-    console.log('\nDepositing 10 USDC from user 1 and 10 USDT from user 2 into the pool');
+    console.log('\nDepositing 10 DAI from user 1 and 10 AAVE from user 2 into the pool');
     await DAI.connect(user1).approve(lendingPool.address, DRE.ethers.utils.parseUnits('10', 6));
     await AAVE.connect(user2).approve(lendingPool.address, DRE.ethers.utils.parseUnits('10', 6));
     await lendingPool
@@ -78,33 +75,33 @@ task('aave:neon', 'Test scenarios on NEON')
       });
     console.log('Current balances');
     console.log(
-      'User 1 USDC:',
+      'User 1 DAI:',
       DRE.ethers.utils.formatUnits(await DAI.balanceOf(await user1.getAddress()), 6),
-      ' USDT: ',
+      ' AAVE: ',
       DRE.ethers.utils.formatUnits(await AAVE.balanceOf(await user1.getAddress()), 6)
     );
     console.log(
-      'User 2 USDC:',
+      'User 2 DAI:',
       DRE.ethers.utils.formatUnits(await DAI.balanceOf(await user2.getAddress()), 6),
-      ' USDT: ',
+      ' AAVE: ',
       DRE.ethers.utils.formatUnits(await AAVE.balanceOf(await user2.getAddress()), 6)
     );
 
-    // AUSDC, AUSDT - aave tokens holding reserves
-    let AUSDC = (await aaveProtocolDataProvider.getReserveTokensAddresses(DAI.address))
+    // ADAI, AAAVE - aave tokens holding reserves
+    let ADAI = (await aaveProtocolDataProvider.getReserveTokensAddresses(DAI.address))
       .aTokenAddress;
-    let AUSDT = (await aaveProtocolDataProvider.getReserveTokensAddresses(AAVE.address))
+    let AAAVE = (await aaveProtocolDataProvider.getReserveTokensAddresses(AAVE.address))
       .aTokenAddress;
     console.log(
-      'Pool USDC balance (aUSDC tokens minted):  ',
-      DRE.ethers.utils.formatUnits(await DAI.balanceOf(AUSDC), 6)
+      'Pool DAI balance (aDAI tokens minted):  ',
+      DRE.ethers.utils.formatUnits(await DAI.balanceOf(ADAI), 6)
     );
     console.log(
-      'Pool USDT balance (aUSDT tokens minted):  ',
-      DRE.ethers.utils.formatUnits(await AAVE.balanceOf(AUSDT), 6)
+      'Pool AAVE balance (aAAVE tokens minted):  ',
+      DRE.ethers.utils.formatUnits(await AAVE.balanceOf(AAAVE), 6)
     );
 
-    console.log('\nUser 1 borrows 5 USDT');
+    console.log('\nUser 1 borrows 5 AAVE');
     let tx = await lendingPool
       .connect(user1)
       .borrow(AAVE.address, DRE.ethers.utils.parseUnits('5', 6), 2, 0, await user1.getAddress(), {
@@ -113,41 +110,38 @@ task('aave:neon', 'Test scenarios on NEON')
 
     await tx.wait();
 
-    let AUSDTToken = await getMintableERC20(AUSDT);
-    let AUSDCToken = await getMintableERC20(AUSDC);
+    let AAAVEToken = await getMintableERC20(AAAVE);
+    let ADAIToken = await getMintableERC20(ADAI);
 
     console.log('Current balances');
     console.log(
-      'User 1 USDC: ',
+      'User 1 DAI: ',
       DRE.ethers.utils.formatUnits(await DAI.balanceOf(await user1.getAddress()), 6),
-      ' USDT: ',
+      ' AAVE: ',
       DRE.ethers.utils.formatUnits(await AAVE.balanceOf(await user1.getAddress()), 6),
-      ' AUSDT: ',
-      DRE.ethers.utils.formatUnits(await AUSDTToken.balanceOf(await user1.getAddress()), 6),
-      ' AUSDC: ',
-      DRE.ethers.utils.formatUnits(await AUSDCToken.balanceOf(await user1.getAddress()), 6)
+      ' AAAVE: ',
+      DRE.ethers.utils.formatUnits(await AAAVEToken.balanceOf(await user1.getAddress()), 6),
+      ' ADAI: ',
+      DRE.ethers.utils.formatUnits(await ADAIToken.balanceOf(await user1.getAddress()), 6)
     );
     console.log(
-      'User 2 USDC: ',
+      'User 2 DAI: ',
       DRE.ethers.utils.formatUnits(await DAI.balanceOf(await user2.getAddress()), 6),
-      ' USDT: ',
+      ' AAVE: ',
       DRE.ethers.utils.formatUnits(await AAVE.balanceOf(await user2.getAddress()), 6),
-      ' AUSDT: ',
-      DRE.ethers.utils.formatUnits(await AUSDTToken.balanceOf(await user2.getAddress()), 6),
-      ' AUSDC: ',
-      DRE.ethers.utils.formatUnits(await AUSDCToken.balanceOf(await user2.getAddress()), 6)
+      ' AAAVE: ',
+      DRE.ethers.utils.formatUnits(await AAAVEToken.balanceOf(await user2.getAddress()), 6),
+      ' ADAI: ',
+      DRE.ethers.utils.formatUnits(await ADAIToken.balanceOf(await user2.getAddress()), 6)
     );
+    console.log('Pool DAI balance:  ', DRE.ethers.utils.formatUnits(await DAI.balanceOf(ADAI), 6));
     console.log(
-      'Pool USDC balance:  ',
-      DRE.ethers.utils.formatUnits(await DAI.balanceOf(AUSDC), 6)
-    );
-    console.log(
-      'Pool USDT balance:  ',
-      DRE.ethers.utils.formatUnits(await AAVE.balanceOf(AUSDT), 6)
+      'Pool AAVE balance:  ',
+      DRE.ethers.utils.formatUnits(await AAVE.balanceOf(AAAVE), 6)
     );
 
     console.log('');
-    console.log('User 1 repays 5 USDT');
+    console.log('User 1 repays 5 AAVE');
     await AAVE.connect(user1).approve(lendingPool.address, DRE.ethers.utils.parseUnits('5', 6));
     await lendingPool
       .connect(user1)
@@ -155,25 +149,25 @@ task('aave:neon', 'Test scenarios on NEON')
         gasLimit: 10000000,
       });
     console.log(
-      'User 1 USDC: ',
+      'User 1 DAI: ',
       DRE.ethers.utils.formatUnits(await DAI.balanceOf(await user1.getAddress()), 6),
-      ' USDT: ',
+      ' AAVE: ',
       DRE.ethers.utils.formatUnits(await AAVE.balanceOf(await user1.getAddress()), 6)
     );
     console.log(
-      'User 2 USDC: ',
+      'User 2 DAI: ',
       DRE.ethers.utils.formatUnits(await DAI.balanceOf(await user2.getAddress()), 6),
-      ' USDT: ',
+      ' AAVE: ',
       DRE.ethers.utils.formatUnits(await AAVE.balanceOf(await user2.getAddress()), 6)
     );
 
     console.log('');
     console.log('~~~~~~~~~~~  FLASHLOAN ~~~~~~~~~~~');
     console.log('');
-    let reserveDataUSDT = await aaveProtocolDataProvider.getReserveData(AAVE.address);
+    let reserveDataAAVE = await aaveProtocolDataProvider.getReserveData(AAVE.address);
     console.log(
-      'User 1 takes a flashloan for all available USDT in the pool(',
-      DRE.ethers.utils.formatUnits(reserveDataUSDT.availableLiquidity, 6),
+      'User 1 takes a flashloan for all available AAVE in the pool(',
+      DRE.ethers.utils.formatUnits(reserveDataAAVE.availableLiquidity, 6),
       ')'
     );
     await lendingPool
@@ -181,7 +175,7 @@ task('aave:neon', 'Test scenarios on NEON')
       .flashLoan(
         mockFlashLoanReceiver.address,
         [AAVE.address],
-        [reserveDataUSDT.availableLiquidity],
+        [reserveDataAAVE.availableLiquidity],
         [0],
         mockFlashLoanReceiver.address,
         '0x10',
@@ -190,10 +184,10 @@ task('aave:neon', 'Test scenarios on NEON')
           gasLimit: 10000000,
         }
       );
-    reserveDataUSDT = await aaveProtocolDataProvider.getReserveData(AAVE.address);
+    reserveDataAAVE = await aaveProtocolDataProvider.getReserveData(AAVE.address);
     console.log(
       'Available liquidity after the flashloan: ',
-      DRE.ethers.utils.formatUnits(reserveDataUSDT.availableLiquidity, 6)
+      DRE.ethers.utils.formatUnits(reserveDataAAVE.availableLiquidity, 6)
     );
 
     console.log('User 1 and User 2 withdraw their deposits from the protocol');
@@ -209,24 +203,21 @@ task('aave:neon', 'Test scenarios on NEON')
       });
     console.log('Current balances');
     console.log(
-      'User 1: USDC',
+      'User 1: DAI',
       DRE.ethers.utils.formatUnits(await DAI.balanceOf(await user1.getAddress()), 6),
-      ' USDT: ',
+      ' AAVE: ',
       DRE.ethers.utils.formatUnits(await AAVE.balanceOf(await user1.getAddress()), 6)
     );
     console.log(
-      'User 2: USDC',
+      'User 2: DAI',
       DRE.ethers.utils.formatUnits(await DAI.balanceOf(await user2.getAddress()), 6),
-      ' USDT: ',
+      ' AAVE: ',
       DRE.ethers.utils.formatUnits(await AAVE.balanceOf(await user2.getAddress()), 6)
     );
+    console.log('Pool DAI balance:  ', DRE.ethers.utils.formatUnits(await DAI.balanceOf(ADAI), 6));
     console.log(
-      'Pool USDC balance:  ',
-      DRE.ethers.utils.formatUnits(await DAI.balanceOf(AUSDC), 6)
-    );
-    console.log(
-      'Pool USDT balance:  ',
-      DRE.ethers.utils.formatUnits(await AAVE.balanceOf(AUSDT), 6)
+      'Pool AAVE balance:  ',
+      DRE.ethers.utils.formatUnits(await AAVE.balanceOf(AAAVE), 6)
     );
 
     console.log('\nTest scenario finished with success!');

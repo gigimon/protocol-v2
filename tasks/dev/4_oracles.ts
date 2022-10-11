@@ -71,7 +71,7 @@ task('dev:deploy-oracles', 'Deploy oracles for dev environment')
       OracleQuoteCurrency
     );
 
-    await deployAaveOracle(
+    const aaveOracle = await deployAaveOracle(
       [
         tokens,
         aggregators,
@@ -81,7 +81,7 @@ task('dev:deploy-oracles', 'Deploy oracles for dev environment')
       ],
       verify
     );
-    await waitForTx(await addressesProvider.setPriceOracle(fallbackOracle.address));
+    await waitForTx(await addressesProvider.setPriceOracle(aaveOracle.address));
 
     const lendingRateOracle = await deployLendingRateOracle(verify);
     await waitForTx(await addressesProvider.setLendingRateOracle(lendingRateOracle.address));
