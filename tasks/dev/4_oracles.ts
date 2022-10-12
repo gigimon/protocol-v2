@@ -1,6 +1,7 @@
 import { task } from 'hardhat/config';
 import {
   deployPriceOracle,
+  deployProxyOracle,
   deployAaveOracle,
   deployLendingRateOracle,
 } from '../../helpers/contracts-deployments';
@@ -51,54 +52,18 @@ task('dev:deploy-oracles', 'Deploy oracles for dev environment')
     await setInitialAssetPricesInOracle(AllAssetsInitialPrices, mockTokensAddress, fallbackOracle);
 
     const allTokenAddresses = getAllTokenAddresses(mockTokens);
-    console.log('__________________________________');
-    console.log(allTokenAddresses);
-    console.log('__________________________________');
+
+    console.log('Deploying proxy oracle');
+    const proxyOracle = await deployProxyOracle(
+      '0x80662336874834355167abA8f524093e6ff77024',
+      verify
+    );
 
     const allAggregatorsAddresses = {
-      DAI: '0x80662336874834355167abA8f524093e6ff77024',
-      AAVE: '0x80662336874834355167abA8f524093e6ff77024',
-      TUSD: '0x80662336874834355167abA8f524093e6ff77024',
+      DAI: proxyOracle.address,
+      AAVE: proxyOracle.address,
+      TUSD: proxyOracle.address,
     };
-    //   BAT: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   WETH: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   USDC: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   USDT: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   SUSD: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   ZRX: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   MKR: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   WBTC: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   LINK: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   KNC: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   MANA: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   REN: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   SNX: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   BUSD: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   USD: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   YFI: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   UNI: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   ENJ: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   UniDAIWETH: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   UniWBTCWETH: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   UniAAVEWETH: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   UniBATWETH: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   UniDAIUSDC: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   UniCRVWETH: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   UniLINKWETH: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   UniMKRWETH: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   UniRENWETH: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   UniSNXWETH: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   UniUNIWETH: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   UniUSDCWETH: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   UniWBTCUSDC: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   UniYFIWETH: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   BptWBTCWETH: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   BptBALWETH: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   WMATIC: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   STAKE: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   xSUSHI: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    //   WAVAX: '0x85E216ce09bF998DF2CB5A43eFE89DDe33523D94',
-    // };
 
     const [tokens, aggregators] = getPairsTokenAggregator(
       allTokenAddresses,
@@ -116,7 +81,6 @@ task('dev:deploy-oracles', 'Deploy oracles for dev environment')
       ],
       verify
     );
-    // await waitForTx(await addressesProvider.setPriceOracle(fallbackOracle.address));
     await waitForTx(await addressesProvider.setPriceOracle(aaveOracle.address));
 
     const lendingRateOracle = await deployLendingRateOracle(verify);

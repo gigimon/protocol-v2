@@ -145,9 +145,13 @@ const buidlerConfig: HardhatUserConfig = {
     },
     neonlabs: {
       url: 'http://127.0.0.1:9090/solana',
-      accounts: ['0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f080', 
-      '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f081', '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f082', 
-      '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f083', '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f084'],
+      accounts: [
+        '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f080',
+        '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f081',
+        '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f082',
+        '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f083',
+        '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f084',
+      ],
       // @ts-ignore
       network_id: 111,
       chainId: 111,
@@ -157,12 +161,15 @@ const buidlerConfig: HardhatUserConfig = {
       isFork: true
     },
     devnet: {
-      // url: 'https://proxy.devnet.neonlabs.org/solana',
-      url: 'https://devnet.neonevm.org',
-      accounts: [ 
-      '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f081', '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f082', 
-      '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f083', '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f084',
-      '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f080'],
+      url: 'https://proxy.devnet.neonlabs.org/solana',
+      // url: 'https://devnet.neonevm.org',
+      accounts: [
+        '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f084',
+        '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f081',
+        '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f080',
+        '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f082',
+        '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f083',
+      ],
       gas: DEFAULT_BLOCK_GAS_LIMIT,
       // @ts-ignore
       network_id: 245022926,
