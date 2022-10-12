@@ -72,6 +72,7 @@ export enum eContractid {
   LendingPool = 'LendingPool',
   PriceOracle = 'PriceOracle',
   Proxy = 'Proxy',
+  ProxyOracle = 'ProxyOracle',
   MockAggregator = 'MockAggregator',
   LendingRateOracle = 'LendingRateOracle',
   AaveOracle = 'AaveOracle',

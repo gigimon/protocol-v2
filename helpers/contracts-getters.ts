@@ -39,6 +39,7 @@ import { IChainlinkAggregatorFactory } from '../types/IChainlinkAggregatorFactor
 import { getEthersSigners, MockTokenMap } from './contracts-helpers';
 import { DRE, getDb, notFalsyOrZeroAddress, omit } from './misc-utils';
 import { eContractid, PoolConfiguration, tEthereumAddress, TokenContractId } from './types';
+import { IProxyOracleFactory } from '../types/IProxyOracleFactory';
 
 export const getFirstSigner = async () => (await getEthersSigners())[0];
 
@@ -84,6 +85,15 @@ export const getChainlinkOracle = async (address?: tEthereumAddress) =>
     address ||
       (
         await getDb().get(`${eContractid.PriceOracle}.${DRE.network.name}`).value()
+      ).address,
+    await getFirstSigner()
+  );
+
+export const getProxyOracle = async (address?: tEthereumAddress) =>
+  await IProxyOracleFactory.connect(
+    address ||
+      (
+        await getDb().get(`${eContractid.ProxyOracle}.${DRE.network.name}`).value()
       ).address,
     await getFirstSigner()
   );
