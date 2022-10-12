@@ -35,7 +35,7 @@ import {
   FlashLiquidationAdapterFactory,
 } from '../types';
 import { IERC20DetailedFactory } from '../types/IERC20DetailedFactory';
-import { IChainlinkAggregatorFactory } from '../types/IChainlinkAggregatorFactory';
+import { IProxyChainlinkAggregatorFactory } from '../types/IProxyChainlinkAggregatorFactory';
 import { getEthersSigners, MockTokenMap } from './contracts-helpers';
 import { DRE, getDb, notFalsyOrZeroAddress, omit } from './misc-utils';
 import { eContractid, PoolConfiguration, tEthereumAddress, TokenContractId } from './types';
@@ -81,7 +81,7 @@ export const getPriceOracle = async (address?: tEthereumAddress) =>
   );
 
 export const getChainlinkOracle = async (address?: tEthereumAddress) =>
-  await IChainlinkAggregatorFactory.connect(
+  await IProxyChainlinkAggregatorFactory.connect(
     address ||
       (
         await getDb().get(`${eContractid.PriceOracle}.${DRE.network.name}`).value()

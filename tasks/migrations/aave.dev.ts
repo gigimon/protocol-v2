@@ -3,7 +3,7 @@ import { checkVerification } from '../../helpers/etherscan-verification';
 import { ConfigNames } from '../../helpers/configuration';
 import { printContracts } from '../../helpers/misc-utils';
 
-import { getPriceOracle, getProxyOracle } from '../../helpers/contracts-getters';
+import { getChainlinkOracle } from '../../helpers/contracts-getters';
 
 task('aave:dev', 'Deploy development enviroment')
   .addFlag('verify', 'Verify contracts at Etherscan')
@@ -19,7 +19,7 @@ task('aave:dev', 'Deploy development enviroment')
 
     console.log('Migration started\n');
     // NOTE: checking chainlink oracle
-    let chainlinkOracle = await getPriceOracle('0x80662336874834355167abA8f524093e6ff77024');
+    let chainlinkOracle = await getChainlinkOracle('0x80662336874834355167abA8f524093e6ff77024');
     let price = (await chainlinkOracle.latestRoundData())[1];
     console.log(`Token price: ${price}`);
 

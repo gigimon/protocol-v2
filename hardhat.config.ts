@@ -161,8 +161,8 @@ const buidlerConfig: HardhatUserConfig = {
       isFork: true
     },
     devnet: {
-      // url: 'https://proxy.devnet.neonlabs.org/solana',
-      url: 'https://devnet.neonevm.org',
+      url: 'https://proxy.devnet.neonlabs.org/solana',
+      // url: 'https://devnet.neonevm.org',
       accounts: [
         '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f084',
         '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f081',
