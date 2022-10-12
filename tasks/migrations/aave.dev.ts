@@ -20,7 +20,7 @@ task('aave:dev', 'Deploy development enviroment')
     console.log('Migration started\n');
     // NOTE: checking chainlink oracle
     let chainlinkOracle = await getPriceOracle('0x80662336874834355167abA8f524093e6ff77024');
-    let price = (await chainlinkOracle.latestRoundData())[2];
+    let price = (await chainlinkOracle.latestRoundData())[1];
     console.log(`Token price: ${price}`);
 
     console.log('1. Deploy mock tokens');
