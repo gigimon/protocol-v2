@@ -24,6 +24,7 @@ task('dev:deploy-oracles', 'Deploy oracles for dev environment')
   .addParam('pool', `Pool name to retrieve configuration, supported: ${Object.values(ConfigNames)}`)
   .setAction(async ({ verify, pool }, localBRE) => {
     await localBRE.run('set-DRE');
+    console.log('RUN DEPLOY CONTRACTS');
     const poolConfig = loadPoolConfig(pool);
     const {
       Mocks: { AllAssetsInitialPrices },
@@ -37,6 +38,7 @@ task('dev:deploy-oracles', 'Deploy oracles for dev environment')
       ...Object.fromEntries(Object.keys(TokenContractId).map((symbol) => [symbol, ''])),
       USD: UsdAddress,
     } as iAssetBase<string>;
+    console.log('GET MOCKED TOKENS');
     const mockTokens = await getAllMockedTokens();
     const mockTokensAddress = Object.keys(mockTokens).reduce<iAssetBase<string>>((prev, curr) => {
       prev[curr as keyof iAssetBase<string>] = mockTokens[curr].address;
@@ -44,8 +46,9 @@ task('dev:deploy-oracles', 'Deploy oracles for dev environment')
     }, defaultTokenList);
     const addressesProvider = await getLendingPoolAddressesProvider();
     const admin = await addressesProvider.getPoolAdmin();
-
+    console.log('DEPLOY PRICE ORACLE');
     const fallbackOracle = await deployPriceOracle(verify);
+    console.log('Set USD PRICE', MockUsdPriceInWei);
     await waitForTx(await fallbackOracle.setEthUsdPrice(MockUsdPriceInWei));
     await setInitialAssetPricesInOracle(AllAssetsInitialPrices, mockTokensAddress, fallbackOracle);
 
@@ -59,7 +62,9 @@ task('dev:deploy-oracles', 'Deploy oracles for dev environment')
       allAggregatorsAddresses,
       OracleQuoteCurrency
     );
-
+    console.log('DEPLOY AAVE ORACLE');
+    console.log('Tokens', tokens);
+    console.log('Aggregators', aggregators);
     await deployAaveOracle(
       [
         tokens,
@@ -70,6 +75,7 @@ task('dev:deploy-oracles', 'Deploy oracles for dev environment')
       ],
       verify
     );
+    console.log('DEPLOY SET PRICE ORACLE');
     await waitForTx(await addressesProvider.setPriceOracle(fallbackOracle.address));
 
     const lendingRateOracle = await deployLendingRateOracle(verify);
@@ -79,6 +85,7 @@ task('dev:deploy-oracles', 'Deploy oracles for dev environment')
     const allReservesAddresses = {
       ...tokensAddressesWithoutUsd,
     };
+    console.log('SET INITIAL MARKET RATES IN RATES ORACLE BY HELPER');
     await setInitialMarketRatesInRatesOracleByHelper(
       LendingRateOracleRatesCommon,
       allReservesAddresses,

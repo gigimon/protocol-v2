@@ -504,10 +504,11 @@ export const deployDelegationAwareATokenImpl = async (verify: boolean) =>
 
 export const deployAllMockTokens = async (verify?: boolean) => {
   const tokens: { [symbol: string]: MockContract | MintableERC20 } = {};
-
+  console.log('deploy all mock tokens');
   const protoConfigData = getReservesConfigByPool(AavePools.neon);
-
+  console.log('Start cycle');
   for (const tokenSymbol of Object.keys(TokenContractId)) {
+    console.log('Deploy ', tokenSymbol);
     let decimals = '18';
 
     let configData = (<any>protoConfigData)[tokenSymbol];
@@ -516,6 +517,7 @@ export const deployAllMockTokens = async (verify?: boolean) => {
       [tokenSymbol, tokenSymbol, configData ? configData.reserveDecimals : decimals],
       verify
     );
+    console.log('Register in json');
     await registerContractInJsonDb(tokenSymbol.toUpperCase(), tokens[tokenSymbol]);
   }
   return tokens;

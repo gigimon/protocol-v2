@@ -84,9 +84,6 @@ const buidlerConfig: HardhatUserConfig = {
     outDir: 'types',
     target: 'ethers-v5',
   },
-  etherscan: {
-    apiKey: ETHERSCAN_KEY,
-  },
   mocha: {
     timeout: 0,
   },
@@ -144,15 +141,13 @@ const buidlerConfig: HardhatUserConfig = {
       },
     },
     neonlabs: {
-      url: 'http://142.132.165.47:9090/solana',
+      url: 'http://proxy.night.stand.neontest.xyz/solana',
       accounts: ['0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f080',
       '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f081', '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f082',
       '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f083', '0x41167312f8c46439b2bcc5e5a6af929262efcd20357a56ebcbc455d835d9f084'],
-      // @ts-ignore
-      network_id: 111,
       chainId: 111,
       allowUnlimitedContractSize: false,
-      timeout: 100000000,
+      timeout: 300000,
       // @ts-ignore
       isFork: true
     }

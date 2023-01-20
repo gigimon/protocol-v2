@@ -45,6 +45,7 @@ export const setInitialMarketRatesInRatesOracleByHelper = async (
   const chunkedSymbols = chunk(symbols, ratesChunks);
 
   // Set helper as owner
+  console.log('TRANSFER OWNERSHIP');
   await waitForTx(
     await lendingRateOracleInstance.transferOwnership(stableAndVariableTokenHelper.address)
   );
@@ -78,6 +79,7 @@ export const setInitialAssetPricesInOracle = async (
     const [, assetAddress] = (Object.entries(assetsAddresses) as [string, string][])[
       assetAddressIndex
     ];
+    console.log('Set initial Asset price in Oracle: ', assetSymbol, price);
     await waitForTx(await priceOracleInstance.setAssetPrice(assetAddress, price));
   }
 };
@@ -123,6 +125,7 @@ export const deployAllMockAggregators = async (
         (value) => value === tokenContractName
       );
       const [, price] = (Object.entries(initialPrices) as [string, string][])[priceIndex];
+      console.log('DEPLOY MOCK AGGREGATOR: ', tokenContractName, price);
       aggregators[tokenContractName] = await deployMockAggregator(price, verify);
     }
   }

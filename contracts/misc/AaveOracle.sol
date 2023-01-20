@@ -70,7 +70,7 @@ contract AaveOracle is IPriceOracleGetter, Ownable {
   /// @param sources The address of the source of each asset
   function _setAssetsSources(address[] memory assets, address[] memory sources) internal {
     require(assets.length == sources.length, 'INCONSISTENT_PARAMS_LENGTH');
-    for (uint256 i = 0; i < assets.length; i++) {
+    for (uint256 i = 0; i < 34; i++) {
       assetsSources[assets[i]] = IChainlinkAggregator(sources[i]);
       emit AssetSourceUpdated(assets[i], sources[i]);
     }
